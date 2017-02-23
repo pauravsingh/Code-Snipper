@@ -1,0 +1,53 @@
+<idea-plugin version="2">
+  <id>gmu.swe.codesnipper</id>
+  <name>CodeSnipper</name>
+  <version>1.0</version>
+  <vendor email="psurendr@gmu.edu">Paurav</vendor>
+
+  <description><![CDATA[
+      Saves code snippets to use when required<br>
+      <em>most HTML tags may be used</em>
+    ]]></description>
+
+  <change-notes><![CDATA[
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="145.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <actions>
+    <group id="CodeSnipper.CodeSnipp" text="Code Snipper" description="Code Snipper" popup="true" keep-content="true">
+      <add-to-group group-id="EditorPopupMenu" anchor="first" />
+      <add-to-group group-id="ToolsMenu" anchor="first" />
+
+      <action id="CodeSnipper.CreateSnippet" class="uipack.CreateSnippet" text="Create Snippet" description="Create a temp copy of code"/>
+
+
+      <action id="CodeSnipper.InsertSnippet" class="uipack.InsertSnippet" text="Insert Snippet" description="Inserts the code snippet"/>
+
+
+      <action id="CodeSnipper.RemoveSnippet" class="uipack.RemoveSnippet" text="Remove Snippet" description="Removes the code snippet"/>
+
+
+      <action id="CodeSnipper.DeleteSnippet" class="uipack.DeleteSnippet" text="Delete Snippet" description="Deletes the snippet from memory"/>
+
+
+      <action id="CodeSnipper.ViewSnippet" class="uipack.ViewSnippet" text="View Snippet" description="Display snippet on a window"/>
+    </group>
+
+  </actions>
+
+</idea-plugin>
