@@ -17,12 +17,13 @@ import com.intellij.ui.components.JBScrollPane;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.io.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Created by paura on 2/18/2017.
  */
-public class ViewSnippet extends AnAction {
+public class DuplicateSnippet extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
@@ -30,6 +31,7 @@ public class ViewSnippet extends AnAction {
         Project project = e.getProject();
         String projectName = project.getName();
         Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        int cursorPosition = editor.getCaretModel().getOffset();
         Document document = editor.getDocument();
         VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
         String fileName = virtualFile.getParent().getName() + "." + virtualFile.getNameWithoutExtension();
@@ -59,9 +61,9 @@ public class ViewSnippet extends AnAction {
         jpanel.add(fileButton);
         jpanel.add(projectButton);
         jpanel.add(libraryButton);
+        
 
         int result = JOptionPane.showConfirmDialog(null, jpanel, "View Snippet", JOptionPane.OK_CANCEL_OPTION);
-
         if (result == JOptionPane.OK_OPTION) {
             if (fileButton.isSelected())
                 Scope = "F";
@@ -70,13 +72,14 @@ public class ViewSnippet extends AnAction {
             if (libraryButton.isSelected())
                 Scope = "L";
         }
-        if (Scope != null) {
+
+        if(Scope!=null) {
             //Read the list of snippets
-            String[] snipList = fileHandler.getNamesList("view", Scope, projectName, fileName, "Both");
+            String[] snipList = fileHandler.getNamesList("duplicate", Scope, projectName, fileName, "Both");
 
             //Display the list
             if (snipList[0].length() > 1) {
-                String choice = (String) JOptionPane.showInputDialog(null, "Select Snippet", "View Snippet", JOptionPane.QUESTION_MESSAGE, null,
+                String choice = (String) JOptionPane.showInputDialog(null, "Select Snippet", "Duplicate Snippet", JOptionPane.QUESTION_MESSAGE, null,
                         snipList,
                         snipList[0]);
                 //Open the selected snippet file, read it and insert it in the editor
@@ -91,7 +94,6 @@ public class ViewSnippet extends AnAction {
                     fileName = choice.split("--")[1];
                     name = choice.split("--")[2];
 
-
                     //If inserted fetch current code from the editor
                     if (inserted) {
                         String commentStart = "/* CS:start-" + name + " */\n";
@@ -103,60 +105,76 @@ public class ViewSnippet extends AnAction {
                         data = fileHandler.readSnippet(projectName, fileName, name);
                     }
 
-                    final String code = data;
+                    JPanel jpanel2 = new JPanel();
+                    jpanel2.setLayout(new VerticalFlowLayout());
 
-                    // Create the Frame, StyleContext, the document and the pane
-                    JFrame f = new JFrame(name);
-                    StyleContext sc = new StyleContext();
-                    final DefaultStyledDocument doc = new DefaultStyledDocument(sc);
-                    JTextPane pane = new JTextPane(doc);
-                    f.setLocationRelativeTo(null);
-                    f.getContentPane().add(new JBScrollPane(pane));
-                    f.setSize(400, 300);
-                    f.setVisible(true);
-                    f.setAlwaysOnTop(true);
-                    f.setSize(500, 500);
-                    pane.setEditable(false);
-                    pane.setBackground(Color.white);
-                    Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-                    f.setLocation(dimension.width - f.getSize().width - 20, f.getSize().height / 2);
+                    JTextField snippetName = new JTextField(name + "-Copy", 20);
 
+                    jpanel2.add(new JLabel("Enter Name:"));
+                    jpanel2.add(snippetName);
+                    jpanel2.add(fileButton);
+                    jpanel2.add(projectButton);
+                    jpanel2.add(libraryButton);
+                    snippetName.requestFocusInWindow();
 
-                    // Create and add the style
-                    final Style codeStyle = sc.addStyle("default", null);
-                    codeStyle.addAttribute(StyleConstants.Foreground, Color.black);
-                    codeStyle.addAttribute(StyleConstants.FontSize, new Integer(17));
-                    codeStyle.addAttribute(StyleConstants.FontFamily, "arial");
+                    int result2 = JOptionPane.showConfirmDialog(null, jpanel2, "Duplicate Snippet", JOptionPane.OK_CANCEL_OPTION);
 
+                    if (result2 == JOptionPane.OK_OPTION) {
+                        name = snippetName.getText();
+                        if (fileButton.isSelected())
+                            Scope = "F";
+                        if (projectButton.isSelected())
+                            Scope = "P";
+                        if (libraryButton.isSelected())
+                            Scope = "L";
 
-                    final int length = code.length();
-                    final Runnable readRunner = new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                doc.insertString(0, code, null);
-                                doc.setCharacterAttributes(0, length, codeStyle, false);
-                                f.getCursor();
-                            } catch (BadLocationException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    };
-                    ApplicationManager.getApplication().invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+                        System.out.println("scope: " + Scope);
+                    }
+
+                    if (name != null) {
+                        String exists = fileHandler.getNamesWithStatus();
+                        if (!exists.contains("--" + projectName + "--" + fileName + "--" + name)) {
+                            String commentStart = "/* CS:start-" + name + " */\n";
+                            String commentEnd = "\n/* CS:end-" + name + " */";
+                            final int start = cursorPosition;
+                            final int end = start + commentStart.length() + data.length();
+                            //Reset names to current file
+                            projectName = project.getName();
+                            fileName = virtualFile.getParent().getName() + "." + virtualFile.getNameWithoutExtension();
+
+                            //Add snippet name to the file
+                            fileHandler.addSnippetName(Scope, projectName, fileName, name);
+
+                            //Create a new file of the snippet name and store the snippet in it
+                            fileHandler.writeSnippet(projectName, fileName, name, data);
+
+                            final String code = data;
+                            final Runnable readRunner = new Runnable() {
                                 @Override
                                 public void run() {
-                                    ApplicationManager.getApplication().runWriteAction(readRunner);
-                                }
-                            }, "DiskRead", null);
-                        }
-                    });
+                                    document.insertString(start, commentStart);
+                                    document.insertString(start + commentStart.length(), code);
+                                    document.insertString(end, commentEnd);
 
+                                }
+                            };
+                            ApplicationManager.getApplication().invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ApplicationManager.getApplication().runWriteAction(readRunner);
+                                        }
+                                    }, "DiskRead", null);
+                                }
+                            });
+
+                        }
+                    }
                 }
             }
         }
-    }
-    }
 
+    }
+}

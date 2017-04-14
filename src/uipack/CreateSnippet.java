@@ -1,5 +1,6 @@
 package uipack;
 
+import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -8,11 +9,17 @@ import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
+import com.intellij.openapi.editor.markup.*;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.VerticalFlowLayout;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.xml.util.ColorIconCache;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 
 
@@ -29,69 +36,94 @@ public class CreateSnippet extends AnAction {
         Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         Document document = editor.getDocument();
         VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
-        String fileName = virtualFile.getNameWithoutExtension();
+        String fileName = virtualFile.getParent().getName()+"."+virtualFile.getNameWithoutExtension();
         SelectionModel selectionModel = editor.getSelectionModel();
-       //if text is highlighted
+        MarkupModel markup = editor.getMarkupModel();
+        GutterHandler gutterHandler = new GutterHandler();
+        FileHandler fileHandler = new FileHandler();
+        String Scope = "F";
+        String name = null;
+
+        //if text is highlighted
         if(selectionModel.hasSelection())
         {
-            //Create a file to store list of snippets
-            File file = new File("..\\plugins\\codesnipper\\files\\"+projectName);
-            if(!file.exists())
-            {
-                try {
-                    file.createNewFile();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
             //Take the snippet name
-            String name = JOptionPane.showInputDialog( "Enter snippet name?","Name Snippet");
+            //String name = JOptionPane.showInputDialog( "Enter snippet name?","Name Snippet");
+            JPanel jpanel = new JPanel();
+            jpanel.setLayout(new VerticalFlowLayout());
+            jpanel.setFocusable(true);
+
+            JTextField snippetName = new JTextField(20);
+
+
+            JRadioButton fileButton = new JRadioButton("File",true);
+            JRadioButton projectButton = new JRadioButton("Project");
+            JRadioButton libraryButton = new JRadioButton("Library");
+            ButtonGroup scopeOption = new ButtonGroup();
+            scopeOption.add(fileButton);
+            scopeOption.add(projectButton);
+            scopeOption.add(libraryButton);
+
+            jpanel.add(new JLabel("Enter Name:"));
+            jpanel.add(snippetName);
+            jpanel.add(fileButton);
+            jpanel.add(projectButton);
+            jpanel.add(libraryButton);
+            snippetName.requestFocusInWindow();
+
+            int result = JOptionPane.showConfirmDialog(null,jpanel,"Create Snippet",JOptionPane.OK_CANCEL_OPTION);
+
+            if (result == JOptionPane.OK_OPTION) {
+                name = snippetName.getText();
+                if(fileButton.isSelected())
+                    Scope = "F";
+                if(projectButton.isSelected())
+                    Scope = "P";
+                if(libraryButton.isSelected())
+                    Scope = "L";
+
+                System.out.println("scope: " + Scope);
+            }
+
             if(name != null) {
-                String commentStart = "/* CS:start-" + name + " */\n";
-                String commentEnd = "\n/* CS:end-" + name + " */";
-                final int start = selectionModel.getSelectionStart();
-                final int end = selectionModel.getSelectionEnd() + commentStart.length();
-                String data = selectionModel.getSelectedText();
-                BufferedWriter metaWriter = null;
-                BufferedWriter dataWriter = null;
-                try {
+                String exists = fileHandler.getNamesWithStatus();
+                if (!exists.contains("--" + projectName + "--" + fileName + "--" + name)) {
+                    String commentStart = "/* CS:start-" + name + " */\n";
+                    String commentEnd = "\n/* CS:end-" + name + " */";
+                    final int start = selectionModel.getSelectionStart();
+                    final int end = selectionModel.getSelectionEnd() + commentStart.length();
+                    String data = selectionModel.getSelectedText();
+
                     //Add snippet name to the file
-                    metaWriter = new BufferedWriter(new FileWriter(file.getPath(),true));
-                    metaWriter.append("I-"+name+"\n");
-                    metaWriter.close();
+                    fileHandler.addSnippetName(Scope, projectName, fileName, name);
+
                     //Create a new file of the snippet name and store the snippet in it
-                    dataWriter = new BufferedWriter(new FileWriter("..\\plugins\\codesnipper\\data\\" + name));
-                    dataWriter.append(data);
-                    dataWriter.close();
-                } catch (FileNotFoundException e1) {
-                    e1.printStackTrace();
-                } catch (UnsupportedEncodingException e1) {
-                    e1.printStackTrace();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                    fileHandler.writeSnippet(projectName, fileName, name, data);
+
+                    final Runnable readRunner = new Runnable() {
+                        @Override
+                        public void run() {
+                            document.insertString(start, commentStart);
+                            document.insertString(end, commentEnd);
+                            selectionModel.removeSelection();
+                            //gutterHandler.setGutterInserted(markup,start,end);
+                        }
+                    };
+                    ApplicationManager.getApplication().invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+                                @Override
+                                public void run() {
+                                    ApplicationManager.getApplication().runWriteAction(readRunner);
+                                }
+                            }, "DiskRead", null);
+                        }
+                    });
+                } else {
+                    JOptionPane.showMessageDialog(null, new JPanel().add(new JLabel("Name already exists!")), "Error", JOptionPane.ERROR_MESSAGE);
                 }
-
-
-                final Runnable readRunner = new Runnable() {
-            @Override
-            public void run() {
-                document.insertString(start,commentStart);
-                document.insertString(end,commentEnd);
-                selectionModel.removeSelection();
             }
-        };
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-                    @Override
-                    public void run() {
-                        ApplicationManager.getApplication().runWriteAction(readRunner);
-                    }
-                }, "DiskRead", null);
-            }
-        });
-        }
         }
     }
 
