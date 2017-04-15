@@ -17,6 +17,8 @@ import com.intellij.ui.components.JBScrollPane;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 
 /**
@@ -24,15 +26,30 @@ import java.io.*;
  */
 public class ViewSnippet extends AnAction {
 
+    String projectName =null;
+    String fileName = null;
+    String choice = null;
+    private String getProjectName() {
+        return projectName;
+    }
+
+    private String getFileName() {
+        return fileName;
+    }
+
+    private void setChoice(String c) {
+        choice = c;
+    }
+
     @Override
     public void actionPerformed(AnActionEvent e) {
         //Get the virtual file
         Project project = e.getProject();
-        String projectName = project.getName();
+        projectName = project.getName();
         Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         Document document = editor.getDocument();
         VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
-        String fileName = virtualFile.getParent().getName() + "." + virtualFile.getNameWithoutExtension();
+        fileName = virtualFile.getParent().getName() + "." + virtualFile.getNameWithoutExtension();
         MarkupModel markup = editor.getMarkupModel();
         GutterHandler gutterHandler = new GutterHandler();
         FileHandler fileHandler = new FileHandler();
@@ -55,32 +72,54 @@ public class ViewSnippet extends AnAction {
         scopeOption.add(projectButton);
         scopeOption.add(libraryButton);
 
+        //Drop down list, by default has file snippets list
+        JComboBox snippetList = new JComboBox(fileHandler.getNamesList("view", "F", getProjectName(), getFileName(), "Both"));
+
+
+        ActionListener ScopeActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String[] snipList = null;
+                if (fileButton.isSelected()) {
+                    snipList = fileHandler.getNamesList("view", "F", getProjectName(), getFileName(), "Both");
+                }
+                if (projectButton.isSelected()) {
+                    snipList = fileHandler.getNamesList("view", "P", getProjectName(), getFileName(), "Both");
+                }
+                if (libraryButton.isSelected()) {
+                    snipList = fileHandler.getNamesList("view", "L", getProjectName(), getFileName(), "Both");
+                }
+                snippetList.removeAllItems();
+                for(int i =0; i < snipList.length; i++) {
+                    snippetList.addItem(snipList[i]);
+                    System.out.println(snipList[i]);
+                }
+            }
+        };
+
+        ActionListener ChoiceActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                setChoice((String) snippetList.getSelectedItem());
+
+            }
+        };
+
+        //add the components to the panel
         jpanel.add(new JLabel("Select Scope:"));
         jpanel.add(fileButton);
         jpanel.add(projectButton);
         jpanel.add(libraryButton);
+        jpanel.add(snippetList);
+        fileButton.addActionListener(ScopeActionListener);
+        projectButton.addActionListener(ScopeActionListener);
+        libraryButton.addActionListener(ScopeActionListener);
+        snippetList.addActionListener(ChoiceActionListener);
+
 
         int result = JOptionPane.showConfirmDialog(null, jpanel, "View Snippet", JOptionPane.OK_CANCEL_OPTION);
 
-        if (result == JOptionPane.OK_OPTION) {
-            if (fileButton.isSelected())
-                Scope = "F";
-            if (projectButton.isSelected())
-                Scope = "P";
-            if (libraryButton.isSelected())
-                Scope = "L";
-        }
-        if (Scope != null) {
-            //Read the list of snippets
-            String[] snipList = fileHandler.getNamesList("view", Scope, projectName, fileName, "Both");
-
-            //Display the list
-            if (snipList[0].length() > 1) {
-                String choice = (String) JOptionPane.showInputDialog(null, "Select Snippet", "View Snippet", JOptionPane.QUESTION_MESSAGE, null,
-                        snipList,
-                        snipList[0]);
-                //Open the selected snippet file, read it and insert it in the editor
-                if (choice != null) {
+        if (result == JOptionPane.OK_OPTION && choice != null) {
                     String nameList = fileHandler.getNamesWithStatus();
                     if (nameList.contains("I--" + Scope + "--" + projectName + "--" + fileName + "--" + choice.split("--")[2]) && projectName.equals(choice.split("--")[0]) && fileName.equals(choice.split("--")[1]))
                         inserted = true;
@@ -154,8 +193,6 @@ public class ViewSnippet extends AnAction {
                         }
                     });
 
-                }
-            }
         }
     }
     }

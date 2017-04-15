@@ -6,16 +6,18 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-/**
- * Created by paura on 4/1/2017.
- */
 public class GutterHandler {
 
-    protected void setGutterInserted(MarkupModel markup,int start, int end)
+
+    protected void setGutterInserted(String projectName, String fileName, String name,MarkupModel markup,int start, int end)
     {
+        RangeHighlighter prevHighlighter = HighlighterManager.getHighLighter(projectName+"--"+fileName+"--"+name);
+        if(prevHighlighter!=null)
+        markup.removeHighlighter(prevHighlighter);
         final Icon  icon = new ImageIcon("F:\\Projects\\IntelliJ\\CodeSnipper\\resources\\inserted.png");
-        final RangeHighlighter highlighter = markup.addRangeHighlighter(start, end, HighlighterLayer.FIRST, null, HighlighterTargetArea.EXACT_RANGE);
-        highlighter.setGutterIconRenderer(new GutterIconRenderer() {
+        final RangeHighlighter rangeHighlighter = markup.addRangeHighlighter(start, end, HighlighterLayer.FIRST, null, HighlighterTargetArea.EXACT_RANGE);
+        HighlighterManager.addHighLighter(projectName+"--"+fileName+"--"+name,rangeHighlighter);
+        rangeHighlighter.setGutterIconRenderer(new GutterIconRenderer() {
             @Override
             public boolean equals(Object o) {
                 return true;
@@ -35,18 +37,20 @@ public class GutterHandler {
             @Override
             @Nullable
             public String getTooltipText() {
-                return "Snippet here";
+                return name+" Snippet here";
             }
         });
     }
 
-    protected void setGutterRemoved(MarkupModel markup,int start, int end)
+    protected void setGutterRemoved(String projectName, String fileName, String name, MarkupModel markup,int start, int end)
     {
+        RangeHighlighter prevHighlighter = HighlighterManager.getHighLighter(projectName+"--"+fileName+"--"+name);
+        if(prevHighlighter!=null)
+        markup.removeHighlighter(prevHighlighter);
         final Icon icon = new ImageIcon("F:\\Projects\\IntelliJ\\CodeSnipper\\resources\\removed.png");
-
-        final RangeHighlighter highlighter = markup.addRangeHighlighter(start, end, HighlighterLayer.FIRST, null, HighlighterTargetArea.EXACT_RANGE);
-
-        highlighter.setGutterIconRenderer(new GutterIconRenderer() {
+        final RangeHighlighter rangeHighlighter = markup.addRangeHighlighter(start, end, HighlighterLayer.FIRST, null, HighlighterTargetArea.EXACT_RANGE);
+        HighlighterManager.addHighLighter(projectName+"--"+fileName+"--"+name,rangeHighlighter);
+        rangeHighlighter.setGutterIconRenderer(new GutterIconRenderer() {
             @Override
             public boolean equals(Object o) {
                 return true;
@@ -66,7 +70,7 @@ public class GutterHandler {
             @Override
             @Nullable
             public String getTooltipText() {
-                return "Snippet here";
+                return name+" Snippet here";
             }
         });
     }

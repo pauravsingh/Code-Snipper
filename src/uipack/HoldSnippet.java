@@ -30,8 +30,6 @@ public class HoldSnippet extends AnAction {
         
         // Create the Frame, StyleContext, the document and the pane
         JFrame f = new JFrame("Temp");
-        StyleContext sc = new StyleContext();
-        final DefaultStyledDocument doc = new DefaultStyledDocument(sc);
         JTextArea pane = new JTextArea();
         f.setLocationRelativeTo(null);
         f.getContentPane().add(new JBScrollPane(pane));
@@ -43,13 +41,6 @@ public class HoldSnippet extends AnAction {
         pane.setBackground(Color.white);
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         f.setLocation(dimension.width-f.getSize().width-20, f.getSize().height/2);
-
-
-        // Create and add the style
-        final Style codeStyle = sc.addStyle("default",null);
-        codeStyle.addAttribute(StyleConstants.Foreground, Color.black);
-        codeStyle.addAttribute(StyleConstants.FontSize, new Integer(17));
-        codeStyle.addAttribute(StyleConstants.FontFamily, "arial");
 
         final Runnable readRunner = new Runnable() {
             @Override

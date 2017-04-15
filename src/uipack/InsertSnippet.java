@@ -50,7 +50,6 @@ public class InsertSnippet extends AnAction {
                 //find the location of start comment in the editor
                 int start = contents.indexOf("/* CS:start-" + name + " */") + commentStart.length();
                 int end = start + data.length();
-
                 //Modify the snippet list to indicate snippet is inserted
                 fileHandler.changeStatus(projectName, fileName, name, "I");
 
@@ -60,7 +59,7 @@ public class InsertSnippet extends AnAction {
                     public void run() {
                         document.insertString(start, data);
                         document.insertString(end, commentEnd);
-                        //gutterHandler.setGutterInserted(markup,start,end);
+                        gutterHandler.setGutterInserted(projectName, fileName, name,markup,start,end);
                     }
                 };
                 ApplicationManager.getApplication().invokeLater(new Runnable() {

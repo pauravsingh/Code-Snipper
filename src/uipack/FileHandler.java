@@ -100,7 +100,7 @@ public class FileHandler {
         String contents = getNamesWithStatus();
         int start = contents.indexOf("--"+projectName+"--"+fileName+"--"+snippetName+"\n");
         String path = "--"+projectName+"--"+fileName+"--"+snippetName+"\n";
-        String entry = contents.substring(start-3, path.length()+3);;
+        String entry = contents.substring(start-3, start+path.length());;
         if (Status.equals("A"))
         {
             contents = contents.replace("I"+entry, "A"+entry);

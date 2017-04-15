@@ -64,7 +64,7 @@ public class RemoveSnippet extends AnAction {
                     public void run() {
                         //remove the snippet content from editor
                         document.replaceString(start,end,"");
-                        //gutterHandler.setGutterRemoveed(markup,start,start+1);
+                        gutterHandler.setGutterRemoved(projectName,fileName,name,markup,start,start+commentStart.length());
                     }
                 };
                 ApplicationManager.getApplication().invokeLater(new Runnable() {
