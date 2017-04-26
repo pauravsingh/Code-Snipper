@@ -1,6 +1,5 @@
 package uipack;
 
-import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -9,18 +8,13 @@ import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
-import com.intellij.openapi.editor.markup.*;
+import com.intellij.openapi.editor.markup.MarkupModel;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.VerticalFlowLayout;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.xml.util.ColorIconCache;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.*;
 
 
 /**
@@ -82,7 +76,6 @@ public class CreateSnippet extends AnAction {
                 if(libraryButton.isSelected())
                     Scope = "L";
 
-                System.out.println("scope: " + Scope);
             }
 
             if(name != null) {
@@ -99,14 +92,14 @@ public class CreateSnippet extends AnAction {
 
                     //Create a new file of the snippet name and store the snippet in it
                     fileHandler.writeSnippet(projectName, fileName, name, data);
-
+                    final String sName = name;
                     final Runnable readRunner = new Runnable() {
                         @Override
                         public void run() {
                             document.insertString(start, commentStart);
                             document.insertString(end, commentEnd);
                             selectionModel.removeSelection();
-                            //gutterHandler.setGutterInserted(markup,start,end);
+                            gutterHandler.setGutterInserted(projectName,fileName,sName,markup,start,start+commentStart.length());
                         }
                     };
                     ApplicationManager.getApplication().invokeLater(new Runnable() {

@@ -85,7 +85,7 @@ public class FileHandler {
             int start = contents.indexOf("--"+projectName+"--"+fileName+"--"+snippetName+"\n")-4;
             String path = "--"+projectName+"--"+fileName+"--"+snippetName+"\n";
             int len = path.length()+4;
-            String entry = contents.substring(start, start+len );            System.out.println(start+" "+path.length()+" "+entry);//4 characters: example: I--F
+            String entry = contents.substring(start, start+len );      //4 characters: example: I--F
             contents = contents.replace(entry, "");
             metaWriter = new BufferedWriter(new FileWriter(registerPath));
             metaWriter.append(contents);

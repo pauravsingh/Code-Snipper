@@ -12,10 +12,8 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.VerticalFlowLayout;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.components.JBScrollPane;
 
 import javax.swing.*;
-import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -91,7 +89,6 @@ public class DuplicateSnippet extends AnAction {
                 snippetList.removeAllItems();
                 for(int i =0; i < snipList.length; i++) {
                     snippetList.addItem(snipList[i]);
-                    System.out.println(snipList[i]);
                 }
             }
         };
@@ -114,7 +111,7 @@ public class DuplicateSnippet extends AnAction {
         projectButton.addActionListener(ScopeActionListener);
         libraryButton.addActionListener(ScopeActionListener);
         snippetList.addActionListener(ChoiceActionListener);
-
+        jpanel.setPreferredSize(new Dimension(400,200));
         int result = JOptionPane.showConfirmDialog(null, jpanel, "Duplicate Snippet", JOptionPane.OK_CANCEL_OPTION);
 
         //Open the selected snippet file, read it and insert it in the editor
@@ -163,7 +160,6 @@ public class DuplicateSnippet extends AnAction {
                 if (libraryButton.isSelected())
                     Scope = "L";
 
-                System.out.println("scope: " + Scope);
             }
 
             if (name != null) {
@@ -182,7 +178,7 @@ public class DuplicateSnippet extends AnAction {
 
                     //Create a new file of the snippet name and store the snippet in it
                     fileHandler.writeSnippet(projectName, fileName, name, data);
-
+                    final String sName = name;
                     final String code = data;
                     final Runnable readRunner = new Runnable() {
                         @Override
@@ -190,6 +186,7 @@ public class DuplicateSnippet extends AnAction {
                             document.insertString(start, commentStart);
                             document.insertString(start + commentStart.length(), code);
                             document.insertString(end, commentEnd);
+                            gutterHandler.setGutterInserted(projectName,fileName,sName,markup,start,start+commentStart.length());
 
                         }
                     };

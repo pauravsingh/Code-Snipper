@@ -1,8 +1,6 @@
 package uipack;
 
 import com.intellij.openapi.editor.markup.RangeHighlighter;
-
-import javax.swing.text.Highlighter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

@@ -3,7 +3,6 @@ package uipack;
 import com.intellij.openapi.editor.markup.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import javax.swing.*;
 
 public class GutterHandler {
@@ -15,7 +14,7 @@ public class GutterHandler {
         if(prevHighlighter!=null)
         markup.removeHighlighter(prevHighlighter);
         final Icon  icon = new ImageIcon("F:\\Projects\\IntelliJ\\CodeSnipper\\resources\\inserted.png");
-        final RangeHighlighter rangeHighlighter = markup.addRangeHighlighter(start, end, HighlighterLayer.FIRST, null, HighlighterTargetArea.EXACT_RANGE);
+        RangeHighlighter rangeHighlighter = markup.addRangeHighlighter(start, end, HighlighterLayer.FIRST, null, HighlighterTargetArea.EXACT_RANGE);
         HighlighterManager.addHighLighter(projectName+"--"+fileName+"--"+name,rangeHighlighter);
         rangeHighlighter.setGutterIconRenderer(new GutterIconRenderer() {
             @Override
@@ -48,7 +47,7 @@ public class GutterHandler {
         if(prevHighlighter!=null)
         markup.removeHighlighter(prevHighlighter);
         final Icon icon = new ImageIcon("F:\\Projects\\IntelliJ\\CodeSnipper\\resources\\removed.png");
-        final RangeHighlighter rangeHighlighter = markup.addRangeHighlighter(start, end, HighlighterLayer.FIRST, null, HighlighterTargetArea.EXACT_RANGE);
+        RangeHighlighter rangeHighlighter = markup.addRangeHighlighter(start, end, HighlighterLayer.FIRST, null, HighlighterTargetArea.EXACT_RANGE);
         HighlighterManager.addHighLighter(projectName+"--"+fileName+"--"+name,rangeHighlighter);
         rangeHighlighter.setGutterIconRenderer(new GutterIconRenderer() {
             @Override
@@ -73,5 +72,12 @@ public class GutterHandler {
                 return name+" Snippet here";
             }
         });
+    }
+
+    protected void removeGutterIcon(String projectName, String fileName, String name, MarkupModel markup)
+    {
+        RangeHighlighter prevHighlighter = HighlighterManager.getHighLighter(projectName+"--"+fileName+"--"+name);
+        if(prevHighlighter!=null)
+            markup.removeHighlighter(prevHighlighter);
     }
 }

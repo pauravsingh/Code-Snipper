@@ -12,10 +12,6 @@ import com.intellij.openapi.editor.markup.MarkupModel;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
-import javax.swing.*;
-import java.io.*;
 
 /**
  * Created by paura on 2/18/2017.
@@ -72,7 +68,7 @@ public class DeleteSnippet extends AnAction {
             final int startComment_end = sc_e + 1;        //+1 removes new line as well
             final int endComment_start = ec_s;
             final int endComment_end = ec_e + 1;          //+1 removes new line as well
-
+            final String sName = name;
             final Runnable readRunner = new Runnable() {
                 @Override
                 public void run() {
@@ -85,7 +81,7 @@ public class DeleteSnippet extends AnAction {
                         }
                         document.replaceString(startComment_start, startComment_end, "");
                     }
-
+                    gutterHandler.removeGutterIcon(projectName,fileName,sName,markup);
                 }
             };
             ApplicationManager.getApplication().invokeLater(new Runnable() {

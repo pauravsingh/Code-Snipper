@@ -120,6 +120,7 @@ public class CompareSnippet extends AnAction {
         projectButton1.addActionListener(ScopeActionListener1);
         libraryButton1.addActionListener(ScopeActionListener1);
         snippetList1.addActionListener(ChoiceActionListener1);
+        jpanel1.setPreferredSize(new Dimension(400,200));
 
         //Second panel
         JPanel jpanel2 = new JPanel();
@@ -177,7 +178,7 @@ public class CompareSnippet extends AnAction {
         projectButton2.addActionListener(ScopeActionListener2);
         libraryButton2.addActionListener(ScopeActionListener2);
         snippetList2.addActionListener(ChoiceActionListener2);
-
+        jpanel2.setPreferredSize(new Dimension(400,200));
 
         JPanel jpanel = new JPanel();
         jpanel.setLayout(new GridLayout(1,2));
@@ -274,8 +275,8 @@ public class CompareSnippet extends AnAction {
             String[] temp2 = snippet2_code.split("\n");
             Highlighter highlighter1 = pane1.getHighlighter();
             Highlighter highlighter2 = pane2.getHighlighter();
-            Highlighter.HighlightPainter redPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.red);
-            Highlighter.HighlightPainter greenPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.GREEN);
+            Highlighter.HighlightPainter redPainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,77,77));
+            Highlighter.HighlightPainter greenPainter = new DefaultHighlighter.DefaultHighlightPainter(new Color(77,255,77));
 
             //Snippet 1 checks snippet 2
             for(int i = 0; i < temp1.length; i++)

@@ -19,7 +19,6 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
 
 /**
  * Created by paura on 2/18/2017.
@@ -92,7 +91,6 @@ public class ViewSnippet extends AnAction {
                 snippetList.removeAllItems();
                 for(int i =0; i < snipList.length; i++) {
                     snippetList.addItem(snipList[i]);
-                    System.out.println(snipList[i]);
                 }
             }
         };
@@ -115,7 +113,7 @@ public class ViewSnippet extends AnAction {
         projectButton.addActionListener(ScopeActionListener);
         libraryButton.addActionListener(ScopeActionListener);
         snippetList.addActionListener(ChoiceActionListener);
-
+        jpanel.setPreferredSize(new Dimension(400,200));
 
         int result = JOptionPane.showConfirmDialog(null, jpanel, "View Snippet", JOptionPane.OK_CANCEL_OPTION);
 

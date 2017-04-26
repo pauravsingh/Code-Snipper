@@ -31,22 +31,38 @@
   <actions>
     <group id="CodeSnipper.CodeSnipp" text="Code Snipper" description="Code Snipper" popup="true" keep-content="true">
       <add-to-group group-id="EditorPopupMenu" anchor="first" />
-      <add-to-group group-id="ToolsMenu" anchor="first" />
+      <add-to-group group-id="MainMenu" anchor="after" relative-to-action="HelpMenu" />
 
-      <action id="CodeSnipper.CreateSnippet" class="uipack.CreateSnippet" text="Create Snippet" description="Create a temp copy of code"/>
+      <action id="CodeSnipper.CreateSnippet" class="uipack.CreateSnippet" text="Create Snippet" description="Create a temp copy of code">
+        <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl S"/>
+      </action>
 
 
-      <action id="CodeSnipper.InsertSnippet" class="uipack.InsertSnippet" text="Insert Snippet" description="Inserts the code snippet"/>
+      <action id="CodeSnipper.InsertSnippet" class="uipack.InsertSnippet" text="Insert Snippet" description="Inserts the code snippet">
+        <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl ,"/>
+      </action>
 
-
-      <action id="CodeSnipper.RemoveSnippet" class="uipack.RemoveSnippet" text="Remove Snippet" description="Removes the code snippet"/>
-
+      <action id="CodeSnipper.RemoveSnippet" class="uipack.RemoveSnippet" text="Remove Snippet" description="Removes the code snippet">
+        <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl ."/>
+      </action>
 
       <action id="CodeSnipper.DeleteSnippet" class="uipack.DeleteSnippet" text="Delete Snippet" description="Deletes the snippet from memory"/>
 
 
       <action id="CodeSnipper.ViewSnippet" class="uipack.ViewSnippet" text="View Snippet" description="Display snippet on a window"/>
+
+
+      <action id="CodeSnipper.DuplicateSnippet" class="uipack.DuplicateSnippet" text="Duplicate Snippet" description="Duplicates a snippet">
+        <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl D"/>
+      </action>
+
+      <action id="CodeSnipper.HoldSnippet" class="uipack.HoldSnippet" text="Hold Snippet" description="Temporarily holds a code snippet">
+        <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl H"/>
+      </action>
+
+      <action id="CodeSnipper.CompareSnippets" class="uipack.CompareSnippet" text="Compare Snippet" description="Compares two snippets "/>
     </group>
+
 
   </actions>
 
